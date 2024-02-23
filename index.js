@@ -82,4 +82,42 @@ app.post('/register', async (req, res) => {
   }
 });
 
+app.post('/addBook', async (req, res) => {
+  const title = req.body.title;
+  const author = req.body.author;
+  const description = req.body.description;
+  const email = req.body.email;
+  
+  try {
+    if(title != "" && author != "" && description != "" && email != "") {
+      const response = await db.query("SELECT id FROM users WHERE email = $1", [email]);
+      const user_id = response.rows[0].id;
+
+      const book = await db.query("INSERT INTO books (title, author, description, user_id) VALUES ($1, $2, $3, $4) RETURNING id", [title, author, description, user_id]);
+      
+      res.send(book.rows[0]);
+    } else {
+      res.send("NOK");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.post('/getBooks', async (req, res) => {
+  const email = req.body.email;
+  
+  try {
+    if(email != "") {
+      const response = await db.query("SELECT books.id, title, author, description FROM books INNER JOIN users ON users.id = books.user_id WHERE email = $1 ORDER BY books.id ASC", [email]);
+      
+      res.send(response.rows);
+    } else {
+      res.send("NOK");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 app.listen(5000, () => console.log('API is running on http://localhost:5000'));
