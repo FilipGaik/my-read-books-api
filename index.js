@@ -120,4 +120,17 @@ app.post('/getBooks', async (req, res) => {
   }
 });
 
+app.post('/updateDescription', async (req, res) => {
+  const id = req.body.id;
+  const description = req.body.description;
+
+  try {
+    await db.query("UPDATE books SET description = $1 WHERE id = $2", [description, id]);
+
+    res.send("OK");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 app.listen(5000, () => console.log('API is running on http://localhost:5000'));
